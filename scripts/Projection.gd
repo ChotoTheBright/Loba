@@ -1,7 +1,7 @@
 extends Node2D
 
 export (int) var grid_unit_size = 64
-export (int) var player_speed = 6
+export (int) var player_speed = 4#6
 # View distance in blocks. e.g.: 20 (blocks) x 64 (grid_unit_size) = 1280 pixels of viewing distance
 export (int) var view_distance = 15 #magic number?
 
@@ -67,8 +67,14 @@ func _ready():
 	player_ref.position = player_starting_pos_ref.position
 	player.position.x = player_ref.position.x
 	player.position.y = player_ref.position.y
-
-	# populate lookup tables with rad values
+#-------------------------------#
+#You can see that the distance between walls are the same if we know the angle
+#slope = tan = height / dist between xi's
+#dist between xi = height/tan where height=tile size
+#distance between xi = x_step[view_angle];
+# source: https://github.com/permadi-com/ray-cast/blob/master/demo/1/sample1.js
+#-------------------------------#
+# populate lookup tables with radian values
 	var radian
 	for i in range(0, ANGLE360 + 1):
 		radian = arcToRad(i) + (0.0001)
@@ -132,8 +138,7 @@ func _physics_process(delta):
 	player.position.x = player_ref.position.x
 	player.position.y = player_ref.position.y
 
-	player_view_area = Rect2(
-		player.position.x - (view_distance/2 * grid_unit_size),player.position.y - (view_distance/2 * grid_unit_size),view_distance * grid_unit_size,view_distance * grid_unit_size)
+	player_view_area = Rect2(player.position.x - (view_distance/2 * grid_unit_size),player.position.y - (view_distance/2 * grid_unit_size),view_distance * grid_unit_size,view_distance * grid_unit_size)
 
 func _rotate_right(_delta):
 	player.rotation += ANGLE5
@@ -146,15 +151,19 @@ func _rotate_left(_delta):
 		player.rotation += ANGLE360
 
 func _move_forward(player_x_dir, player_y_dir):
-	player_ref.move_and_collide(Vector2(round(player_x_dir * player_speed), round(player_y_dir * player_speed)))
+	player_ref.move_and_collide(Vector2(round(player_x_dir * player_speed), 
+	round(player_y_dir * player_speed)))
 
 func _move_backwards(player_x_dir, player_y_dir):
-	player_ref.move_and_collide(-Vector2(round(player_x_dir * player_speed), round(player_y_dir * player_speed)))
+	player_ref.move_and_collide(-Vector2(round(player_x_dir * player_speed), 
+	round(player_y_dir * player_speed)))
 
 # warning-ignore:unused_argument
 func _draw_slice(ray_distance, ray_index, player_rotation, texture_offset):
 	var projected_slice_height = grid_unit_size * PROJECTION_PLANE_DISTANCE / ray_distance
-	draw_texture_rect_region(wall_texture,Rect2(ray_index, PROJECTION_Y_CENTER - int(projected_slice_height / 2), 1, projected_slice_height),Rect2(floor(texture_offset), 0, 1, 64))
+	draw_texture_rect_region(wall_texture,Rect2(ray_index, 
+	PROJECTION_Y_CENTER - int(projected_slice_height / 2), 1, 
+	projected_slice_height),Rect2(floor(texture_offset), 0, 1, 64))
 
 func _cast_rays():
 	var ray_degree = player.rotation
