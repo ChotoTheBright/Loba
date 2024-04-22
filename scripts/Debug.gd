@@ -1,5 +1,4 @@
 extends Control
-
 const NO_INTERSECTION = { "x": -1, "y": -1 }
 
 func update_player_angle(angle):

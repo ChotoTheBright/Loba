@@ -3,7 +3,7 @@ extends Node2D
 export (int) var grid_unit_size = 64
 export (int) var player_speed = 6
 # View distance in blocks. e.g.: 20 (blocks) x 64 (grid_unit_size) = 1280 pixels of viewing distance
-export (int) var view_distance = 15
+export (int) var view_distance = 15 #magic number?
 
 export (Texture) var wall_texture
 
@@ -34,9 +34,9 @@ var ANGLE45 = floor(ANGLE15*3)
 # warning-ignore:integer_division
 var PROJECTION_PLANE_DISTANCE = floor(PROJECTION_X_CENTER / tan(deg2rad(FOV / 2)))
 
-var PROJECTION_TO_360_RATIO = ANGLE360 / 360
+var PROJECTION_TO_360_RATIO = floor(ANGLE360 / 360)
 
-# Trigonometric tables for quick calculations (the ones with "i" are inverse tables)
+# Trigonometric tables for quick calculations (vars with "i" are inverse tables)
 var f_sin_table = []
 var f_i_sin_table = []
 var f_cos_table = []
@@ -47,10 +47,7 @@ var f_fish_dict = {}
 var f_x_step_table = []
 var f_y_step_table = []
 
-var player = {
-  "position": Vector2(0, 0),
-  "rotation": ANGLE90
-}
+var player = {"position": Vector2(0, 0),"rotation": ANGLE90}
 
 # Vars for debugging
 var debug_first_ray
@@ -262,13 +259,12 @@ func _get_vertical_ray_collision(player_position, ray_degree):
 	var x_intersection
 	var y_intersection
 	var i = 0
-#1 ^ v
 	while (true):
-		if i == 0: #2
+		if i == 0:
 			x_intersection = _find_first_X_v_intersection(ray_degree, player_position, is_facing_left)
 			y_intersection = _find_first_Y_v_intersection(ray_degree, player_position, x_intersection)
-	#3 ^
-			if is_facing_left: #2
+
+			if is_facing_left:
 				x_intersection -= 1
 
 			var grid_x_coords = floor(x_intersection / grid_unit_size)

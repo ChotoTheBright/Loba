@@ -2,7 +2,7 @@
 
 [ext_resource path="res://scripts/Main.gd" type="Script" id=1]
 [ext_resource path="res://scenes/Projection.tscn" type="PackedScene" id=2]
-[ext_resource path="res://images/bricks.png" type="Texture" id=3]
+[ext_resource path="res://images/BRICK_2A.png" type="Texture" id=3]
 [ext_resource path="res://scenes/Player.tscn" type="PackedScene" id=4]
 [ext_resource path="res://scenes/Wall.tscn" type="PackedScene" id=5]
 [ext_resource path="res://scenes/Debug.tscn" type="PackedScene" id=6]
@@ -11,7 +11,7 @@
 script = ExtResource( 1 )
 
 [node name="StartPosition" type="Position2D" parent="."]
-position = Vector2( 96, 64 )
+position = Vector2( 140, 408 )
 
 [node name="Projection" parent="." instance=ExtResource( 2 )]
 view_distance = 35
@@ -67,7 +67,7 @@ position = Vector2( 256, 192 )
 position = Vector2( 256, 256 )
 
 [node name="Wall37" parent="HUD/Obstacles" instance=ExtResource( 5 )]
-position = Vector2( 320, 256 )
+position = Vector2( 320, 0 )
 
 [node name="Wall38" parent="HUD/Obstacles" instance=ExtResource( 5 )]
 position = Vector2( 384, 256 )
@@ -274,7 +274,7 @@ position = Vector2( 1024, 64 )
 position = Vector2( 1088, 192 )
 
 [node name="Wall109" parent="HUD/Obstacles" instance=ExtResource( 5 )]
-position = Vector2( 1152, 192 )
+position = Vector2( 1152, 64 )
 
 [node name="Wall110" parent="HUD/Obstacles" instance=ExtResource( 5 )]
 position = Vector2( 1024, 192 )
@@ -364,6 +364,7 @@ position = Vector2( 192, 768 )
 position = Vector2( 256, 768 )
 
 [node name="Debug" parent="HUD" instance=ExtResource( 6 )]
+visible = false
 margin_left = 898.0
 margin_top = 32.0
 margin_right = 898.0
