@@ -1,24 +1,21 @@
 extends Node2D
 
 export (int) var grid_unit_size = 64
-export (int) var player_speed = 4#6
-# View distance in blocks. e.g.: 20 (blocks) x 64 (grid_unit_size) = 1280 pixels of viewing distance
-export (int) var view_distance = 15 #magic number?
-
+export (int) var player_speed = 3#6
+export (int) var view_distance = 35#15
+# View distance in blocks. e.g.: 20(blocks)x64(grid_unit_size) = 1280 pixels of viewing distance
 export (Texture) var wall_texture
-
 export (NodePath) var player_path
-onready var player_ref = get_node(player_path)
-
 export (NodePath) var player_starting_position
+onready var control = get_tree().get_nodes_in_group("control")[0]
+onready var player_ref = get_node(player_path)
 onready var player_starting_pos_ref = get_node(player_starting_position)
 
-const FOV = 60
+const FOV = 55
 var PROJECTION_PLANE_WIDTH = 640
 var PROJECTION_PLANE_HEIGHT = 400
 var PROJECTION_X_CENTER = PROJECTION_PLANE_WIDTH / 2
 var PROJECTION_Y_CENTER = PROJECTION_PLANE_HEIGHT / 2
-
 var ANGLE60 = PROJECTION_PLANE_WIDTH
 var ANGLE30 = floor(ANGLE60/2)
 var ANGLE15 = floor(ANGLE30/2)
@@ -55,8 +52,9 @@ var debug_last_ray
 var debug_ray_intersection
 
 # Array representing all coordinates that have a wall
-var map_representation
+var map_representation = []
 var player_view_area = Rect2(0, 0, 0, 0)
+
 
 
 func arcToRad(angle):
@@ -224,8 +222,11 @@ func _get_horizontal_ray_collision(player_position, ray_degree):
 
 			var grid_x_coords = floor(x_intersection / grid_unit_size)
 			var grid_y_coords = floor(y_intersection / grid_unit_size)
+			var _a_ = [grid_x_coords,grid_y_coords]
+#			print(_a_)
 
-			if _wall_exists(grid_x_coords, grid_y_coords):
+
+			if _wall_exists(grid_x_coords, grid_y_coords): #
 				return {'distance': (x_intersection - player_position.x) * f_i_cos_table[ray_degree],'texture_offset': fmod(x_intersection, grid_unit_size)}
 			i += 1
 		else: 
@@ -234,8 +235,10 @@ func _get_horizontal_ray_collision(player_position, ray_degree):
 
 			var grid_x_coords = floor(x_intersection / grid_unit_size)
 			var grid_y_coords = floor(y_intersection / grid_unit_size)
+			var _b_ = [grid_x_coords,grid_y_coords]
+#			print(_b_)
 
-			if _wall_exists(grid_x_coords, grid_y_coords):
+			if _wall_exists(grid_x_coords, grid_y_coords): 
 				return {'distance': (x_intersection - player_position.x) * f_i_cos_table[ray_degree],'texture_offset': fmod(x_intersection, grid_unit_size)}
 
 			if y_intersection < player_view_area.position.y \
@@ -246,6 +249,9 @@ func _get_horizontal_ray_collision(player_position, ray_degree):
 
 func _wall_exists(x, y):
 	return map_representation.has([int(x), int(y)])
+
+func _wall_check():
+	return map_representation
 
 # warning-ignore:unused_argument
 func _find_first_Y_h_intersection(ray_degree, player_position, is_facing_down):
@@ -278,8 +284,10 @@ func _get_vertical_ray_collision(player_position, ray_degree):
 
 			var grid_x_coords = floor(x_intersection / grid_unit_size)
 			var grid_y_coords = floor(y_intersection / grid_unit_size)
+			var _c_ = [grid_x_coords,grid_y_coords]
+#			print(_c_)
 
-			if _wall_exists(grid_x_coords, grid_y_coords):
+			if _wall_exists(grid_x_coords, grid_y_coords): 
 				return {'distance': (y_intersection - player_position.y) * f_i_sin_table[ray_degree],'texture_offset': fmod(y_intersection, grid_unit_size)}
 	# warning-ignore:unreachable_code
 			i += 1
@@ -289,8 +297,10 @@ func _get_vertical_ray_collision(player_position, ray_degree):
 
 			var grid_x_coords = floor(x_intersection / grid_unit_size)
 			var grid_y_coords = floor(y_intersection / grid_unit_size)
+			var _d_ = [grid_x_coords,grid_y_coords]
+#			print(_d_)
 
-			if _wall_exists(grid_x_coords, grid_y_coords):
+			if _wall_exists(grid_x_coords, grid_y_coords): #
 				return {'distance': (y_intersection - player_position.y) * f_i_sin_table[ray_degree],'texture_offset': fmod(y_intersection, grid_unit_size)}
 
 			if y_intersection < player_view_area.position.y \

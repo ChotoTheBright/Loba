@@ -2,18 +2,20 @@ extends Node2D
 
 onready var player = get_tree().get_nodes_in_group("player")[0]
 onready var debug = get_tree().get_nodes_in_group("debug")[0]
+onready var tiles = get_tree().get_nodes_in_group("tiles")[0]
 onready var _proj = $Projection
 onready var _start = $StartPosition
 onready var _hud = $HUD
-#onready var _tiles = $HUD/Obstacles/TileMap
-onready var _obsta = $HUD/Obstacles
+onready var _tiles = $HUD/Tilewalls
+#onready var _obsta = $HUD/Obstacles
 var hudvis : bool
+var map_representation = [] #PoolVector2Array()
 
 func _ready():
 	_proj.player.position = _start.position
-	var map_representation = []
-	for n in _obsta.get_children():
-		map_representation.append([int(n.position.x / _proj.grid_unit_size),int(n.position.y / _proj.grid_unit_size)])
+#	for n in _obsta.get_children(): 
+#		map_representation.append([int(n.position.x / _proj.grid_unit_size),int(n.position.y / _proj.grid_unit_size)])
+	tiles.add_wall_tiles(tiles._walls)
 	_proj.map_representation = map_representation
 	_hud.hide()
 
@@ -25,7 +27,6 @@ func _process(_delta):
 		else: 
 			_hud.show()
 			hudvis = true
-
 
 	if hudvis == true:
 		debug.update_player_angle($HUD/Player.rotation_degrees)
