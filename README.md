@@ -1,7 +1,5 @@
 # Loba
-Small Wolfenstein-like engine for Godot 3.5.x.
-
-This is an active WIP, more updates to follow.
+Small Wolfenstein-like engine for Godot 3.5.x. This is an active WIP, more updates to follow.
 
 
 Originally conceived by RDParedes as doom-godot :: https://github.com/rdparedes/doom-godot.
