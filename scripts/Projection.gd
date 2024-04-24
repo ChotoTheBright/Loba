@@ -1,17 +1,18 @@
 extends Node2D
 
 export (int) var grid_unit_size = 64
-export (int) var player_speed = 3#6
-export (int) var view_distance = 35#15
-# View distance in blocks. e.g.: 20(blocks)x64(grid_unit_size) = 1280 pixels of viewing distance
+export (int) var player_speed = 3
+export (int) var view_distance = 35
+# view distance is "blocks" * grid_unit_size - ie. 64 * 35 equals 2240 pixels
 export (Texture) var wall_texture
 export (NodePath) var player_path
 export (NodePath) var player_starting_position
+
 onready var control = get_tree().get_nodes_in_group("control")[0]
 onready var player_ref = get_node(player_path)
 onready var player_starting_pos_ref = get_node(player_starting_position)
-
 const FOV = 55
+
 var PROJECTION_PLANE_WIDTH = 640
 var PROJECTION_PLANE_HEIGHT = 400
 var PROJECTION_X_CENTER = PROJECTION_PLANE_WIDTH / 2
@@ -30,10 +31,11 @@ var ANGLE45 = floor(ANGLE15*3)
 
 # warning-ignore:integer_division
 var PROJECTION_PLANE_DISTANCE = floor(PROJECTION_X_CENTER / tan(deg2rad(FOV / 2)))
-
 var PROJECTION_TO_360_RATIO = floor(ANGLE360 / 360)
 
-# Trigonometric tables for quick calculations (vars with "i" are inverse tables)
+# Trigonometry tables for quick calculations (vars with "i" are inverse tables)
+# I don't actually know trig, I followed people way smarter than I am. :D
+# further reading: https://github.com/permadi-com/ray-cast/blob/master/demo/1/sample1.js
 var f_sin_table = []
 var f_i_sin_table = []
 var f_cos_table = []
@@ -46,32 +48,24 @@ var f_y_step_table = []
 
 var player = {"position": Vector2(0, 0),"rotation": ANGLE90}
 
-# Vars for debugging
+# debug
 var debug_first_ray
 var debug_last_ray
 var debug_ray_intersection
-
-# Array representing all coordinates that have a wall
-var map_representation = []
+# Array of all coords with a tile wall
+var map_representation = [] 
+#"View" window
 var player_view_area = Rect2(0, 0, 0, 0)
-
-
 
 func arcToRad(angle):
 	return ((angle*PI)/ANGLE180)
 
 func _ready():
-  # Put player in initial position
+  # player starting pos.
 	player_ref.position = player_starting_pos_ref.position
 	player.position.x = player_ref.position.x
 	player.position.y = player_ref.position.y
-#-------------------------------#
-#You can see that the distance between walls are the same if we know the angle
-#slope = tan = height / dist between xi's
-#dist between xi = height/tan where height=tile size
-#distance between xi = x_step[view_angle];
-# source: https://github.com/permadi-com/ray-cast/blob/master/demo/1/sample1.js
-#-------------------------------#
+
 # populate lookup tables with radian values
 	var radian
 	for i in range(0, ANGLE360 + 1):
@@ -104,7 +98,7 @@ func _ready():
 			if f_y_step_table[i] > 0:
 				f_y_step_table[i] = -f_y_step_table[i]
 
-	# Lookup table for Fishbowl distortion fix
+	# Fishbowl distortion fix?
 	for i in range(-ANGLE30, ANGLE30 + 1):
 		radian = arcToRad(i)
 		f_fish_dict[int(i+ANGLE30)] = (1.0/cos(radian))
@@ -222,9 +216,6 @@ func _get_horizontal_ray_collision(player_position, ray_degree):
 
 			var grid_x_coords = floor(x_intersection / grid_unit_size)
 			var grid_y_coords = floor(y_intersection / grid_unit_size)
-			var _a_ = [grid_x_coords,grid_y_coords]
-#			print(_a_)
-
 
 			if _wall_exists(grid_x_coords, grid_y_coords): #
 				return {'distance': (x_intersection - player_position.x) * f_i_cos_table[ray_degree],'texture_offset': fmod(x_intersection, grid_unit_size)}
@@ -235,8 +226,6 @@ func _get_horizontal_ray_collision(player_position, ray_degree):
 
 			var grid_x_coords = floor(x_intersection / grid_unit_size)
 			var grid_y_coords = floor(y_intersection / grid_unit_size)
-			var _b_ = [grid_x_coords,grid_y_coords]
-#			print(_b_)
 
 			if _wall_exists(grid_x_coords, grid_y_coords): 
 				return {'distance': (x_intersection - player_position.x) * f_i_cos_table[ray_degree],'texture_offset': fmod(x_intersection, grid_unit_size)}
@@ -284,8 +273,6 @@ func _get_vertical_ray_collision(player_position, ray_degree):
 
 			var grid_x_coords = floor(x_intersection / grid_unit_size)
 			var grid_y_coords = floor(y_intersection / grid_unit_size)
-			var _c_ = [grid_x_coords,grid_y_coords]
-#			print(_c_)
 
 			if _wall_exists(grid_x_coords, grid_y_coords): 
 				return {'distance': (y_intersection - player_position.y) * f_i_sin_table[ray_degree],'texture_offset': fmod(y_intersection, grid_unit_size)}
@@ -297,8 +284,6 @@ func _get_vertical_ray_collision(player_position, ray_degree):
 
 			var grid_x_coords = floor(x_intersection / grid_unit_size)
 			var grid_y_coords = floor(y_intersection / grid_unit_size)
-			var _d_ = [grid_x_coords,grid_y_coords]
-#			print(_d_)
 
 			if _wall_exists(grid_x_coords, grid_y_coords): #
 				return {'distance': (y_intersection - player_position.y) * f_i_sin_table[ray_degree],'texture_offset': fmod(y_intersection, grid_unit_size)}
