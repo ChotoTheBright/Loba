@@ -1,14 +1,16 @@
 extends Node2D
 
 export (int) var grid_unit_size = 64
-export (int) var player_speed = 3
-export (int) var view_distance = 35
-# view distance is "blocks" * grid_unit_size - ie. 64 * 35 equals 2240 pixels
+export (int) var player_speed = 2    #3
+export (int) var view_distance = 34 #35 orig.
+# view distance is "blocks" * grid_unit_size - ie. 64 * 35 equals 2176 pixels
 export (Texture) var wall_texture
 export (NodePath) var player_path
 export (NodePath) var player_starting_position
 
 onready var control = get_tree().get_nodes_in_group("control")[0]
+onready var tiles = get_tree().get_nodes_in_group("tiles")[0]
+#onready var wall_texture = tiles.get_tileset().find_tile_by_name("BrickWall.png")
 onready var player_ref = get_node(player_path)
 onready var player_starting_pos_ref = get_node(player_starting_position)
 const FOV = 55
@@ -87,12 +89,12 @@ func _ready():
 			f_x_step_table.append(grid_unit_size/f_tan_table[i])
 			if f_x_step_table[i] < 0:
 				f_x_step_table[i] = -f_x_step_table[i]
-			# Facing DOWN
+		# Facing DOWN
 		if (i >= ANGLE0 && i < ANGLE180):
 			f_y_step_table.append(grid_unit_size*f_tan_table[i])
 			if f_y_step_table[i] < 0:
 				f_y_step_table[i] = -f_y_step_table[i]
-			# Facing UP
+		# Facing UP
 		else:
 			f_y_step_table.append(grid_unit_size*f_tan_table[i])
 			if f_y_step_table[i] > 0:
@@ -110,9 +112,9 @@ func _process(_delta):
 	update()
 
 func _physics_process(delta):
-	if Input.is_action_pressed("ui_left"):
+	if Input.is_action_just_pressed("ui_left"):
 		_rotate_left(delta)
-	if Input.is_action_pressed("ui_right"):
+	if Input.is_action_just_pressed("ui_right"):
 		_rotate_right(delta)
 
 	player_ref.rotation_degrees = floor(player.rotation / PROJECTION_TO_360_RATIO)
@@ -133,12 +135,12 @@ func _physics_process(delta):
 	player_view_area = Rect2(player.position.x - (view_distance/2 * grid_unit_size),player.position.y - (view_distance/2 * grid_unit_size),view_distance * grid_unit_size,view_distance * grid_unit_size)
 
 func _rotate_right(_delta):
-	player.rotation += ANGLE5
+	player.rotation += ANGLE90#ANGLE5
 	if player.rotation >= ANGLE360:
 		player.rotation -= ANGLE360
 
 func _rotate_left(_delta):
-	player.rotation -= ANGLE5
+	player.rotation -= ANGLE90#ANGLE5
 	if player.rotation < ANGLE0:
 		player.rotation += ANGLE360
 
@@ -153,6 +155,7 @@ func _move_backwards(player_x_dir, player_y_dir):
 # warning-ignore:unused_argument
 func _draw_slice(ray_distance, ray_index, player_rotation, texture_offset):
 	var projected_slice_height = grid_unit_size * PROJECTION_PLANE_DISTANCE / ray_distance
+	
 	draw_texture_rect_region(wall_texture,Rect2(ray_index, 
 	PROJECTION_Y_CENTER - int(projected_slice_height / 2), 1, 
 	projected_slice_height),Rect2(floor(texture_offset), 0, 1, 64))
@@ -234,7 +237,7 @@ func _get_horizontal_ray_collision(player_position, ray_degree):
 				or y_intersection > player_view_area.end.y \
 				or x_intersection < player_view_area.position.x \
 				or x_intersection > player_view_area.end.x:
-				break
+					break
 
 func _wall_exists(x, y):
 	return map_representation.has([int(x), int(y)])

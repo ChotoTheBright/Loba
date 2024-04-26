@@ -6,15 +6,22 @@ onready var tiles = get_tree().get_nodes_in_group("tiles")[0]
 onready var _proj = $Projection
 onready var _start = $StartPosition
 onready var _hud = $HUD
-onready var _tiles = $HUD/Tilewalls
-#onready var _obsta = $HUD/Obstacles
 var hudvis : bool
-var map_representation = [] #PoolVector2Array()
+var map_representation = []
+#var tilemap <-- this is "tiles"
+#tilemap.SetCell(x, y, tileIndex)
+var x : int = 10
+var y : int = 15
+
+#tilemap.SetCell(x, y, tileIndex)
+
+
 
 func _ready():
 	_proj.player.position = _start.position
-#	for n in _obsta.get_children(): 
-#		map_representation.append([int(n.position.x / _proj.grid_unit_size),int(n.position.y / _proj.grid_unit_size)])
+# this method can still be used if you prefer to populate the map with Static Bodies
+#				for n in _obsta.get_children(): 
+#					map_representation.append([int(n.position.x / _proj.grid_unit_size),int(n.position.y / _proj.grid_unit_size)])
 	tiles.add_wall_tiles(tiles._walls)
 	_proj.map_representation = map_representation
 	_hud.hide()

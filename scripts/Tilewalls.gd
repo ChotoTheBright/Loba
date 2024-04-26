@@ -6,6 +6,7 @@ export(Vector2) var map_size = Vector2.ONE * 64 #<-- var returns the num you put
 onready var control = get_tree().get_nodes_in_group("control")[0]
 onready var projection = get_tree().get_nodes_in_group("projection")[0]
 onready var _walls = get_used_cells_by_id(0)
+#onready var wall_txtr
 
 func _ready():
 	add_wall_tiles(_walls)
