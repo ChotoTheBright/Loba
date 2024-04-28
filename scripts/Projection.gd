@@ -5,19 +5,21 @@ export (int) var player_speed = 2    #3
 export (int) var view_distance = 34 #35 orig.
 # view distance is "blocks" * grid_unit_size - ie. 64 * 35 equals 2176 pixels
 export (Texture) var wall_texture
+export (Texture) var floor_texture
 export (NodePath) var player_path
 export (NodePath) var player_starting_position
 
 onready var control = get_tree().get_nodes_in_group("control")[0]
 onready var tiles = get_tree().get_nodes_in_group("tiles")[0]
-#onready var wall_texture = tiles.get_tileset().find_tile_by_name("BrickWall.png")
 onready var player_ref = get_node(player_path)
 onready var player_starting_pos_ref = get_node(player_starting_position)
 const FOV = 55
 
-var PROJECTION_PLANE_WIDTH = 640
-var PROJECTION_PLANE_HEIGHT = 400
+var PROJECTION_PLANE_WIDTH = 320#640
+var PROJECTION_PLANE_HEIGHT = 200#400
+#
 var PROJECTION_X_CENTER = PROJECTION_PLANE_WIDTH / 2
+#this calculates half of the height of the screen
 var PROJECTION_Y_CENTER = PROJECTION_PLANE_HEIGHT / 2
 var ANGLE60 = PROJECTION_PLANE_WIDTH
 var ANGLE30 = floor(ANGLE60/2)
@@ -57,6 +59,7 @@ var debug_ray_intersection
 # Array of all coords with a tile wall
 var map_representation = [] 
 #"View" window
+#onready var player_view_area = $ViewportContainer/Viewport#Rect2(0, 0, 0, 0)
 var player_view_area = Rect2(0, 0, 0, 0)
 
 func arcToRad(angle):
@@ -135,12 +138,12 @@ func _physics_process(delta):
 	player_view_area = Rect2(player.position.x - (view_distance/2 * grid_unit_size),player.position.y - (view_distance/2 * grid_unit_size),view_distance * grid_unit_size,view_distance * grid_unit_size)
 
 func _rotate_right(_delta):
-	player.rotation += ANGLE90#ANGLE5
+	player.rotation += ANGLE45#ANGLE90#ANGLE5
 	if player.rotation >= ANGLE360:
 		player.rotation -= ANGLE360
 
 func _rotate_left(_delta):
-	player.rotation -= ANGLE90#ANGLE5
+	player.rotation -= ANGLE45#ANGLE90#ANGLE5
 	if player.rotation < ANGLE0:
 		player.rotation += ANGLE360
 
@@ -155,10 +158,9 @@ func _move_backwards(player_x_dir, player_y_dir):
 # warning-ignore:unused_argument
 func _draw_slice(ray_distance, ray_index, player_rotation, texture_offset):
 	var projected_slice_height = grid_unit_size * PROJECTION_PLANE_DISTANCE / ray_distance
-	
 	draw_texture_rect_region(wall_texture,Rect2(ray_index, 
 	PROJECTION_Y_CENTER - int(projected_slice_height / 2), 1, 
-	projected_slice_height),Rect2(floor(texture_offset), 0, 1, 64))
+	projected_slice_height),Rect2(floor(texture_offset), 0, 1, grid_unit_size))
 
 func _cast_rays():
 	var ray_degree = player.rotation
@@ -312,3 +314,4 @@ func _find_next_X_v_intersection(is_facing_left):
 
 func _find_next_Y_v_intersection(ray_degree):
 	return f_y_step_table[ray_degree]
+

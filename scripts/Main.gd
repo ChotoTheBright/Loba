@@ -8,14 +8,8 @@ onready var _start = $StartPosition
 onready var _hud = $HUD
 var hudvis : bool
 var map_representation = []
-#var tilemap <-- this is "tiles"
-#tilemap.SetCell(x, y, tileIndex)
 var x : int = 10
 var y : int = 15
-
-#tilemap.SetCell(x, y, tileIndex)
-
-
 
 func _ready():
 	_proj.player.position = _start.position
@@ -28,14 +22,12 @@ func _ready():
 
 func _process(_delta):
 	if Input.is_action_just_pressed('ui_show_hide_hud'):
-		if hudvis:
+		if hudvis == true:
+			debug.update_player_angle($HUD/Player.rotation_degrees)
+			debug.update_player_position(_proj.player.position)
+			debug.update_ray(_proj.debug_first_ray, _proj.debug_last_ray)
 			_hud.hide()
 			hudvis = false
 		else: 
 			_hud.show()
 			hudvis = true
-
-	if hudvis == true:
-		debug.update_player_angle($HUD/Player.rotation_degrees)
-		debug.update_player_position(_proj.player.position)
-		debug.update_ray(_proj.debug_first_ray, _proj.debug_last_ray)
