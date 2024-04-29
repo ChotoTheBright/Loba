@@ -3,7 +3,7 @@ extends Node2D
 onready var player = get_tree().get_nodes_in_group("player")[0]
 onready var debug = get_tree().get_nodes_in_group("debug")[0]
 onready var tiles = get_tree().get_nodes_in_group("tiles")[0]
-onready var _proj = $Projection
+onready var _proj = get_tree().get_nodes_in_group("projection")[0]
 onready var _start = $StartPosition
 onready var _hud = $HUD
 var hudvis : bool
@@ -23,11 +23,12 @@ func _ready():
 func _process(_delta):
 	if Input.is_action_just_pressed('ui_show_hide_hud'):
 		if hudvis == true:
-			debug.update_player_angle($HUD/Player.rotation_degrees)
-			debug.update_player_position(_proj.player.position)
-			debug.update_ray(_proj.debug_first_ray, _proj.debug_last_ray)
 			_hud.hide()
 			hudvis = false
 		else: 
 			_hud.show()
 			hudvis = true
+	if hudvis:
+		debug.update_player_angle($HUD/Player.rotation_degrees)
+		debug.update_player_position(_proj.player.position)
+		debug.update_ray(_proj.debug_first_ray, _proj.debug_last_ray)
