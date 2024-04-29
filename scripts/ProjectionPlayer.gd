@@ -1,19 +1,18 @@
-extends Node2D
+extends KinematicBody2D
 
 export (int) var grid_unit_size = 64
 export (int) var player_speed = 2    #3
 export (int) var view_distance = 34 #35 orig.
 # view distance is "blocks" * grid_unit_size - ie. 64 * 35 equals 2176 pixels
-#export (Texture) var wall_texture
-#export (Texture) var floor_texture
+export (Texture) var wall_texture
+export (Texture) var floor_texture
 #export (NodePath) var player_path
 #export (NodePath) var player_starting_position
 
 onready var control = get_tree().get_nodes_in_group("control")[0]
 onready var tiles = get_tree().get_nodes_in_group("tiles")[0]
-onready var player_ref= get_tree().get_nodes_in_group("player")[0]# = get_node(player_path)
-onready var player_starting_pos_ref = get_tree().get_nodes_in_group("startpos")[0]# = get_node(player_starting_position)
-onready var wall_texture = preload("res://images/BrickWall.png")
+#onready var player_ref = get_node(player_path)
+#onready var player_starting_pos_ref = get_node(player_starting_position)
 const FOV = 55
 
 var PROJECTION_PLANE_WIDTH = 320
@@ -68,9 +67,9 @@ func arcToRad(angle):
 
 func _ready():
   # player starting pos.
-	player_ref.position = player_starting_pos_ref.position
-	player.position.x = player_ref.position.x
-	player.position.y = player_ref.position.y
+#	player_ref.position = player_starting_pos_ref.position
+#	player.position.x = player_ref.position.x
+#	player.position.y = player_ref.position.y
 
 # populate lookup tables with radian values
 	var radian
@@ -121,7 +120,8 @@ func _physics_process(delta):
 	if Input.is_action_just_pressed("ui_right"):
 		_rotate_right(delta)
 
-	player_ref.rotation_degrees = floor(player.rotation / PROJECTION_TO_360_RATIO)
+#	player_ref.rotation_degrees = floor(player.rotation / PROJECTION_TO_360_RATIO)
+	self.rotation_degrees = floor(player.rotation / PROJECTION_TO_360_RATIO)
 
 	var player_x_dir = f_cos_table[player.rotation]
 	var player_y_dir = f_sin_table[player.rotation]
@@ -131,10 +131,10 @@ func _physics_process(delta):
 	if Input.is_action_pressed("ui_down"):
 		_move_backwards(player_x_dir, player_y_dir)
 
-	player_ref.position.x = floor(player_ref.position.x)
-	player_ref.position.y = floor(player_ref.position.y)
-	player.position.x = player_ref.position.x
-	player.position.y = player_ref.position.y
+#	player_ref.position.x = floor(player_ref.position.x)
+#	player_ref.position.y = floor(player_ref.position.y)
+#	player.position.x = player_ref.position.x
+#	player.position.y = player_ref.position.y
 
 	player_view_area = Rect2(player.position.x - (view_distance/2 * grid_unit_size),player.position.y - (view_distance/2 * grid_unit_size),view_distance * grid_unit_size,view_distance * grid_unit_size)
 
@@ -149,10 +149,14 @@ func _rotate_left(_delta):
 		player.rotation += ANGLE360
 
 func _move_forward(player_x_dir, player_y_dir):
-	player_ref.move_and_collide(Vector2(round(player_x_dir * player_speed),round(player_y_dir * player_speed)))
+#	player_ref.move_and_collide(Vector2(round(player_x_dir * player_speed),round(player_y_dir * player_speed)))
+# warning-ignore:return_value_discarded
+	move_and_collide(Vector2(round(player_x_dir * player_speed),round(player_y_dir * player_speed)))
 
 func _move_backwards(player_x_dir, player_y_dir):
-	player_ref.move_and_collide(-Vector2(round(player_x_dir * player_speed),round(player_y_dir * player_speed)))
+#	player_ref.move_and_collide(-Vector2(round(player_x_dir * player_speed),round(player_y_dir * player_speed)))
+# warning-ignore:return_value_discarded
+	move_and_collide(-Vector2(round(player_x_dir * player_speed),round(player_y_dir * player_speed)))
 
 # warning-ignore:unused_argument
 func _draw_slice(ray_distance, ray_index, player_rotation, texture_offset):

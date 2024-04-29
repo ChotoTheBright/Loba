@@ -1,27 +1,23 @@
 extends Node2D
-
 export (int) var grid_unit_size = 64
-export (int) var player_speed = 2    #3
-export (int) var view_distance = 34 #35 orig.
-# view distance is "blocks" * grid_unit_size - ie. 64 * 35 equals 2176 pixels
-#export (Texture) var wall_texture
-#export (Texture) var floor_texture
-#export (NodePath) var player_path
-#export (NodePath) var player_starting_position
-
+export (int) var player_speed = 2
+export (int) var view_distance = 34
+#view distance is the "blocks" multiplied by grid_unit_size (ie. 64 * 34 equals 2176 pixels)
 onready var control = get_tree().get_nodes_in_group("control")[0]
 onready var tiles = get_tree().get_nodes_in_group("tiles")[0]
-onready var player_ref= get_tree().get_nodes_in_group("player")[0]# = get_node(player_path)
-onready var player_starting_pos_ref = get_tree().get_nodes_in_group("startpos")[0]# = get_node(player_starting_position)
+onready var player_ref= get_tree().get_nodes_in_group("player")[0]
+onready var player_starting_pos_ref = get_tree().get_nodes_in_group("startpos")[0]
 onready var wall_texture = preload("res://images/BrickWall.png")
-const FOV = 55
-
+onready var floor_texture = preload("res://images/Flrtex1.png")
+onready var sky_texture = preload("res://images/sky.png")
+const FOV = 48 #55 orig.
+const ANGLE0 = 0
 var PROJECTION_PLANE_WIDTH = 320
 var PROJECTION_PLANE_HEIGHT = 200
-
 var PROJECTION_X_CENTER = PROJECTION_PLANE_WIDTH / 2
-#this calculates half of the height of the screen
+# ^ this calculates half of the width of the screen
 var PROJECTION_Y_CENTER = PROJECTION_PLANE_HEIGHT / 2
+# ^ this calculates half of the height of the screen
 var ANGLE60 = PROJECTION_PLANE_WIDTH
 var ANGLE30 = floor(ANGLE60/2)
 var ANGLE15 = floor(ANGLE30/2)
@@ -29,7 +25,6 @@ var ANGLE90 = floor(ANGLE30*3)
 var ANGLE180 = floor(ANGLE90*2)
 var ANGLE270 = floor(ANGLE90*3)
 var ANGLE360 = floor(ANGLE60*6)
-const ANGLE0 = 0
 var ANGLE5 = floor(ANGLE30/6)
 var ANGLE10 = floor(ANGLE5*2)
 var ANGLE45 = floor(ANGLE15*3)
@@ -39,8 +34,6 @@ var PROJECTION_PLANE_DISTANCE = floor(PROJECTION_X_CENTER / tan(deg2rad(FOV / 2)
 var PROJECTION_TO_360_RATIO = floor(ANGLE360 / 360)
 
 # Trigonometry tables for quick calculations (vars with "i" are inverse tables)
-# I don't actually know trig, I followed people way smarter than I am. :D
-# further reading: https://github.com/permadi-com/ray-cast/blob/master/demo/1/sample1.js
 var f_sin_table = []
 var f_i_sin_table = []
 var f_cos_table = []
@@ -110,7 +103,12 @@ func _ready():
 		f_fish_dict[int(i+ANGLE30)] = (1.0/cos(radian))
 
 func _draw():
+	_draw_sky()
+	_draw_floor()
 	_cast_rays()
+
+
+
 
 func _process(_delta):
 	update()
@@ -159,6 +157,37 @@ func _draw_slice(ray_distance, ray_index, player_rotation, texture_offset):
 	var projected_slice_height = grid_unit_size * PROJECTION_PLANE_DISTANCE / ray_distance
 	draw_texture_rect_region(wall_texture,Rect2(ray_index, PROJECTION_Y_CENTER - int(projected_slice_height / 2),1,projected_slice_height),Rect2(floor(texture_offset), 0, 1, grid_unit_size))
 
+func _draw_floor():
+	draw_texture_rect_region(
+	floor_texture,
+	#rect
+	Rect2(0, PROJECTION_Y_CENTER,
+	PROJECTION_PLANE_WIDTH - int(grid_unit_size * PROJECTION_PLANE_WIDTH),
+	grid_unit_size * PROJECTION_Y_CENTER/64),
+	#src_rect
+	Rect2(0, 0, #PROJECTION_Y_CENTER for second 0 can also work 
+	grid_unit_size * PROJECTION_PLANE_HEIGHT, grid_unit_size))
+
+func _draw_sky():
+	draw_texture_rect_region(
+	sky_texture,
+	#rect
+	Rect2(0, 0,
+	PROJECTION_PLANE_WIDTH - int(grid_unit_size * PROJECTION_PLANE_WIDTH),
+	grid_unit_size * PROJECTION_Y_CENTER/64),
+	#src_rect
+	Rect2(0, 0, #PROJECTION_Y_CENTER for second 0 can also work 
+	grid_unit_size * PROJECTION_PLANE_HEIGHT, grid_unit_size))
+#	draw_texture_rect_region(
+#	sky_texture,
+#	#rect
+#	Rect2(0, 0, #PROJECTION_Y_CENTER
+#	PROJECTION_PLANE_WIDTH - int(grid_unit_size * PROJECTION_PLANE_WIDTH),
+#	grid_unit_size * PROJECTION_Y_CENTER/64),
+#	#src_rect
+#	Rect2(0, 0, 
+#	grid_unit_size * PROJECTION_PLANE_HEIGHT, grid_unit_size * PROJECTION_PLANE_WIDTH))
+
 func _cast_rays():
 	var ray_degree = player.rotation
 	ray_degree -= ANGLE30
@@ -177,7 +206,7 @@ func _cast_rays():
 			if ray_distance:
 				ray_distance /= f_fish_dict[ray_index]
 				#this is where the rendering occurs
-				_draw_slice(ray_distance, ray_index, player.rotation, ray_data['texture_offset'])
+				_draw_slice(ray_distance, ray_index, player.rotation, round(ray_data['texture_offset'])) #can remove round() if you want
 			ray_degree += 1
 		if ray_degree >= ANGLE360:
 			ray_degree -= ANGLE360

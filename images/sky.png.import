@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/player.png-163753890810fa89776ed0f872fd9df1.stex"
+path="res://.import/sky.png-08ac01b276b8d7ae698a9aae0f1a275b.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://images/player.png"
-dest_files=[ "res://.import/player.png-163753890810fa89776ed0f872fd9df1.stex" ]
+source_file="res://images/sky.png"
+dest_files=[ "res://.import/sky.png-08ac01b276b8d7ae698a9aae0f1a275b.stex" ]
 
 [params]
 
@@ -19,12 +19,12 @@ compress/lossy_quality=0.7
 compress/hdr_mode=0
 compress/bptc_ldr=0
 compress/normal_map=0
-flags/repeat=0
-flags/filter=true
-flags/mipmaps=true
-flags/anisotropic=true
+flags/repeat=1
+flags/filter=false
+flags/mipmaps=false
+flags/anisotropic=false
 flags/srgb=2
-process/fix_alpha_border=true
+process/fix_alpha_border=false
 process/premult_alpha=false
 process/HDR_as_SRGB=false
 process/invert_color=false
