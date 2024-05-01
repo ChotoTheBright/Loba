@@ -69,6 +69,10 @@ ui_show_hide_hud={
 2d_physics/layer_1="Walls"
 2d_physics/layer_2="Player"
 
+[physics]
+
+2d/use_bvh=false
+
 [rendering]
 
 quality/reflections/texture_array_reflections=false

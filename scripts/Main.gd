@@ -8,6 +8,7 @@ onready var _start = $StartPosition
 onready var _hud = $HUD
 var hudvis : bool
 var map_representation = []
+var flr_representation = []
 var x : int = 10
 var y : int = 15
 
@@ -15,7 +16,9 @@ func _ready():
 	_proj.player.position = _start.position
 	#see bottom of script for old method#
 	tiles.add_wall_tiles(tiles._walls)
+	tiles.add_grnd_tiles(tiles._grnd)
 	_proj.map_representation = map_representation
+	_proj.flr_representation = flr_representation
 	_hud.hide()
 
 func _process(_delta):
