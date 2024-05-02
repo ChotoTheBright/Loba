@@ -7,8 +7,8 @@ onready var control = get_tree().get_nodes_in_group("control")[0]
 onready var tiles = get_tree().get_nodes_in_group("tiles")[0]
 onready var player_ref= get_tree().get_nodes_in_group("player")[0]
 onready var player_starting_pos_ref = get_tree().get_nodes_in_group("startpos")[0]
-onready var wall_texture = preload("res://images/BrickWall.png")
-onready var floor_texture = preload("res://images/Flrtex1.png")
+onready var wall_texture = tiles.get_tileset().tile_get_texture(0)#preload("res://images/BrickWall.png") 
+onready var floor_texture = tiles.get_tileset().tile_get_texture(1)#preload("res://images/Flrtex1.png")
 onready var sky_texture = preload("res://images/sky.png")
 const FOV = 55 #orig.
 const ANGLE0 = 0
@@ -61,6 +61,7 @@ func arcToRad(angle):
 	return ((angle*PI)/ANGLE180)
 
 func _ready():
+#	print()
   # player starting pos.
 	player_ref.position = player_starting_pos_ref.position
 	player.position.x = player_ref.position.x
@@ -105,7 +106,7 @@ func _ready():
 
 func _draw():
 	_draw_sky()
-	_draw_floor()
+#	_draw_floor()
 	_cast_rays()
 
 
@@ -160,14 +161,14 @@ func _draw_slice(ray_distance, ray_index, texture_offset): # player_rotation 3rd
 	Rect2(ray_index, PROJECTION_Y_CENTER - int(projected_slice_height / 2),1,projected_slice_height),
 	Rect2(floor(texture_offset), 0, 1, grid_unit_size))
 
-func _floor_slice(ray_distance, ray_index, texture_offset): #
+func _floor_slice(ray_distance, ray_index, texture_offset): 
 	var projected_slice_height = grid_unit_size * PROJECTION_PLANE_DISTANCE / ray_distance
 	var btm_of_wall = PROJECTION_Y_CENTER+(projected_slice_height/PI)#*0.5)#
 	var top_of_wall = PROJECTION_Y_CENTER-(projected_slice_height/PI)#*0.5)#
-#	texture_offset = fmod(_find_next_Y_h_intersection(ray_distance), grid_unit_size)
+	texture_offset = fmod(_find_next_Y_h_intersection(ray_distance), grid_unit_size)
 	draw_texture_rect_region(floor_texture, 
-	Rect2(ray_index,btm_of_wall,1,top_of_wall),
-	Rect2(floor(texture_offset),0,1,grid_unit_size))
+	Rect2(ray_index,btm_of_wall,100,top_of_wall), #floor(texture_offset)
+	Rect2(ray_index,0,1,grid_unit_size))
 
 func _draw_floor():
 #	var projected_slice_height = grid_unit_size * PROJECTION_PLANE_DISTANCE / ray_distance
