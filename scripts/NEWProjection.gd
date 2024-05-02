@@ -8,12 +8,11 @@ onready var tiles = get_tree().get_nodes_in_group("tiles")[0]
 onready var player_ref= get_tree().get_nodes_in_group("player")[0]
 onready var player_starting_pos_ref = get_tree().get_nodes_in_group("startpos")[0]
 onready var wall_texture = tiles.get_tileset().tile_get_texture(0)
-#preload("res://images/BrickWall.png") 
+onready var border_texture = tiles.get_tileset().tile_get_texture(1)
 onready var floor_texture = tiles.get_tileset().tile_get_texture(2)
-#preload("res://images/Flrtex1.png")
 onready var sky_texture = preload("res://images/sky.png")
 onready var ceil_texture = preload("res://images/ceilingblack.png")
-var tile_num_list : Array = []
+onready var texture_list : Array = [wall_texture,border_texture]
 const FOV = 55
 const ANGLE0 = 0
 var PROJECTION_PLANE_WIDTH = 320
@@ -158,11 +157,16 @@ func _move_forward(player_x_dir, player_y_dir):
 func _move_backwards(player_x_dir, player_y_dir):
 	player_ref.move_and_collide(-Vector2(round(player_x_dir * player_speed),round(player_y_dir * player_speed)))
 
-
 func _draw_wall(ray_distance, ray_index, texture_offset): #_draw_slice
 	var projected_slice_height = grid_unit_size * PROJECTION_PLANE_DISTANCE / ray_distance
 	draw_texture_rect_region(wall_texture, 
 	Rect2(ray_index, PROJECTION_Y_CENTER - int(projected_slice_height / 2),1,projected_slice_height),
+	Rect2(floor(texture_offset), 0, 1, grid_unit_size))
+
+func _draw_border(ray_distance, ray_index, texture_offset):
+	var _projected_slice_height = grid_unit_size * PROJECTION_PLANE_DISTANCE / ray_distance
+	draw_texture_rect_region(border_texture, #"border_texture"
+	Rect2(ray_index, PROJECTION_Y_CENTER - int(_projected_slice_height / 2),1,_projected_slice_height),
 	Rect2(floor(texture_offset), 0, 1, grid_unit_size))
 
 func _draw_floor(ray_distance, ray_index): #_floor_slice
@@ -172,12 +176,6 @@ func _draw_floor(ray_distance, ray_index): #_floor_slice
 	draw_texture_rect_region(floor_texture, 
 	Rect2(ray_index,btm_of_wall,100,top_of_wall),
 	Rect2(ray_index,0,1,grid_unit_size))
-
-func _draw_border(ray_distance, ray_index, texture_offset):
-	var _projected_slice_height = grid_unit_size * PROJECTION_PLANE_DISTANCE / ray_distance
-	draw_texture_rect_region(floor_texture, #"border_texture"
-	Rect2(ray_index, PROJECTION_Y_CENTER - int(_projected_slice_height / 2),1,_projected_slice_height),
-	Rect2(floor(texture_offset), 0, 1, grid_unit_size))
 
 func _draw_static_floor():
 	draw_texture_rect_region(floor_texture,
@@ -211,8 +209,7 @@ func _cast_rays():
 				ray_distance /= f_fish_dict[ray_index]
 				#this is where the rendering occurs
 				_draw_floor(ray_distance, ray_index)
-				_draw_border(ray_distance, ray_index, round(ray_data['texture_offset']))
-				_draw_wall(ray_distance, ray_index, round(ray_data['texture_offset'])) # player.rotation was 3rd item. not in use
+				_draw_wall(ray_distance, ray_index, round(ray_data['texture_offset'])) 
 
 			ray_degree += 1
 		if ray_degree >= ANGLE360:
@@ -255,11 +252,10 @@ func _get_horizontal_ray_collision(player_position, ray_degree):
 			var grid_x_coords = floor(x_intersection / grid_unit_size)
 			var grid_y_coords = floor(y_intersection / grid_unit_size)
 
-			if _wall_exists(grid_x_coords, grid_y_coords): #
+			if _wall_exists(grid_x_coords, grid_y_coords):
 				return {'distance': (x_intersection - player_position.x) * f_i_cos_table[ray_degree],'texture_offset': fmod(x_intersection, grid_unit_size)}
-			if _brdr_check(grid_x_coords, grid_y_coords):
-				return {'distance': (y_intersection - player_position.y) * f_i_sin_table[ray_degree],'texture_offset': fmod(y_intersection, grid_unit_size)}
 			i += 1
+
 		else: 
 			y_intersection += _find_next_Y_h_intersection(is_facing_down)
 			x_intersection += _find_next_X_h_intersection(ray_degree)
@@ -269,8 +265,7 @@ func _get_horizontal_ray_collision(player_position, ray_degree):
 
 			if _wall_exists(grid_x_coords, grid_y_coords): 
 				return {'distance': (x_intersection - player_position.x) * f_i_cos_table[ray_degree],'texture_offset': fmod(x_intersection, grid_unit_size)}
-			if _brdr_check(grid_x_coords, grid_y_coords):
-				return {'distance': (y_intersection - player_position.y) * f_i_sin_table[ray_degree],'texture_offset': fmod(y_intersection, grid_unit_size)}
+
 			if y_intersection < player_view_area.position.y \
 				or y_intersection > player_view_area.end.y \
 				or x_intersection < player_view_area.position.x \
@@ -280,12 +275,8 @@ func _get_horizontal_ray_collision(player_position, ray_degree):
 func _wall_exists(x, y):
 	return map_representation.has([int(x), int(y)])
 
-func _flr_check(x, y):
-	return flr_representation.has([int(x), int(y)])
-
 func _brdr_check(x, y):
 	return brdr_representation.has([int(x), int(y)])
-
 
 # warning-ignore:unused_argument
 func _find_first_Y_h_intersection(ray_degree, player_position, is_facing_down):
@@ -321,9 +312,8 @@ func _get_vertical_ray_collision(player_position, ray_degree):
 
 			if _wall_exists(grid_x_coords, grid_y_coords): 
 				return {'distance': (y_intersection - player_position.y) * f_i_sin_table[ray_degree],'texture_offset': fmod(y_intersection, grid_unit_size)}
-			if _brdr_check(grid_x_coords, grid_y_coords):
-				return {'distance': (y_intersection - player_position.y) * f_i_sin_table[ray_degree],'texture_offset': fmod(y_intersection, grid_unit_size)}
 			i += 1
+
 		else:
 			x_intersection += _find_next_X_v_intersection(is_facing_left)
 			y_intersection += _find_next_Y_v_intersection(ray_degree)
@@ -333,8 +323,7 @@ func _get_vertical_ray_collision(player_position, ray_degree):
 
 			if _wall_exists(grid_x_coords, grid_y_coords): #
 				return {'distance': (y_intersection - player_position.y) * f_i_sin_table[ray_degree],'texture_offset': fmod(y_intersection, grid_unit_size)}
-			if _brdr_check(grid_x_coords, grid_y_coords):
-				return {'distance': (y_intersection - player_position.y) * f_i_sin_table[ray_degree],'texture_offset': fmod(y_intersection, grid_unit_size)}
+
 			if y_intersection < player_view_area.position.y \
 				or y_intersection > player_view_area.end.y \
 				or x_intersection < player_view_area.position.x \

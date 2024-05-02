@@ -7,17 +7,13 @@ onready var _proj = get_tree().get_nodes_in_group("projection")[0]
 onready var _start = $StartPosition
 onready var _hud = $HUD
 var hudvis : bool
-var map_representation = []
-var flr_representation = []
-var brdr_representation = []
-var x : int = 10
-var y : int = 15
+onready var map_representation = []
+onready var flr_representation = []
+onready var brdr_representation = []
 
 func _ready():
 	_proj.player.position = _start.position
 	#see bottom of script for old method#
-#	tiles.add_wall_tiles(tiles._walls)
-#	tiles.add_grnd_tiles(tiles._grnd)
 	tiles.add_tiles(tiles._walls, tiles._brdr, tiles._grnd)
 	_proj.map_representation = map_representation
 	_proj.brdr_representation = brdr_representation
@@ -43,7 +39,13 @@ func _process(_delta):
 
 
 
+#	tiles.add_wall_tiles(tiles._walls)
+#	tiles.add_grnd_tiles(tiles._grnd)
 
+
+
+#var x : int = 10
+#var y : int = 15
 
 ## this method can still be used if you prefer to populate the map with Static Bodies. :)
 #				for n in _obsta.get_children(): 
