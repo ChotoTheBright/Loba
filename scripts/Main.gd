@@ -9,15 +9,18 @@ onready var _hud = $HUD
 var hudvis : bool
 var map_representation = []
 var flr_representation = []
+var brdr_representation = []
 var x : int = 10
 var y : int = 15
 
 func _ready():
 	_proj.player.position = _start.position
 	#see bottom of script for old method#
-	tiles.add_wall_tiles(tiles._walls)
-	tiles.add_grnd_tiles(tiles._grnd)
+#	tiles.add_wall_tiles(tiles._walls)
+#	tiles.add_grnd_tiles(tiles._grnd)
+	tiles.add_tiles(tiles._walls, tiles._brdr, tiles._grnd)
 	_proj.map_representation = map_representation
+	_proj.brdr_representation = brdr_representation
 	_proj.flr_representation = flr_representation
 	_hud.hide()
 
@@ -29,9 +32,10 @@ func _process(_delta):
 		else: 
 			_hud.show()
 			hudvis = true
+
 	if hudvis:
 		debug.update_player_angle($HUD/Player.rotation_degrees)
-		debug.update_player_position(_proj.position)
+		debug.update_player_position(player.position)
 		debug.update_ray(_proj.debug_first_ray, _proj.debug_last_ray)
 
 
